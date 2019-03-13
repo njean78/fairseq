@@ -11,7 +11,7 @@ Translate pre-processed data with a trained model.
 
 import torch
 
-from fairseq import bleu, options, progress_bar, tasks, tokenizer, utils
+from fairseq import bleu, options, progress_bar, tasks, utils
 from fairseq.meters import StopwatchMeter, TimeMeter
 from fairseq.utils import import_user_module
 
@@ -74,7 +74,7 @@ def main(args):
             *[model.max_positions() for model in models]
         ),
         ignore_invalid_inputs=args.skip_invalid_size_inputs_valid_test,
-        required_batch_size_multiple=8,
+        required_batch_size_multiple=args.required_batch_size_multiple,
         num_shards=args.num_shards,
         shard_id=args.shard_id,
         num_workers=args.num_workers,
@@ -179,6 +179,7 @@ def main(args):
         num_sentences, gen_timer.n, gen_timer.sum, num_sentences / gen_timer.sum, 1. / gen_timer.avg))
     if has_target:
         print('| Generate {} with beam={}: {}'.format(args.gen_subset, args.beam, scorer.result_string()))
+    return scorer
 
 
 def cli_main():

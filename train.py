@@ -82,7 +82,7 @@ def main(args, init_distributed=False):
         max_sentences=args.max_sentences,
         max_positions=max_positions,
         ignore_invalid_inputs=True,
-        required_batch_size_multiple=8,
+        required_batch_size_multiple=args.required_batch_size_multiple,
         seed=args.seed,
         num_shards=args.distributed_world_size,
         shard_id=args.distributed_rank,
@@ -220,7 +220,7 @@ def validate(args, trainer, task, epoch_itr, subsets):
                 trainer.get_model().max_positions(),
             ),
             ignore_invalid_inputs=args.skip_invalid_size_inputs_valid_test,
-            required_batch_size_multiple=8,
+            required_batch_size_multiple=args.required_batch_size_multiple,
             seed=args.seed,
             num_shards=args.distributed_world_size,
             shard_id=args.distributed_rank,
@@ -325,7 +325,7 @@ def save_checkpoint(args, trainer, epoch_itr, val_loss):
 
     if args.keep_last_epochs > 0:
         # remove old epoch checkpoints; checkpoints are sorted in descending order
-        checkpoints = utils.checkpoint_paths(args.save_dir, pattern=r'checkpoint\d+\.pt')
+        checkpoints = utils.checkpoint_paths(args.save_dir, pattern=r'checkpoint(\d+)\.pt')
         for old_chk in checkpoints[args.keep_last_epochs:]:
             if os.path.lexists(old_chk):
                 os.remove(old_chk)
