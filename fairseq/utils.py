@@ -14,7 +14,7 @@ from collections import defaultdict, OrderedDict
 
 import torch
 from torch.serialization import default_restore_location
-
+import numpy as np
 
 def torch_persistent_save(*args, **kwargs):
     for i in range(3):
@@ -273,12 +273,24 @@ def parse_embedding(embed_path):
             embed_dict[pieces[0]] = torch.Tensor([float(weight) for weight in pieces[1:]])
     return embed_dict
 
+def get_mean_sd(embed_dict):
+    vals = torch.stack(list(embed_dict.values()))
+    mean = vals.mean()
+    sd = vals.std()
+    return (mean,sd)
 
 def load_embedding(embed_dict, vocab, embedding):
+    """
+    load external embeddings and guarantees that the mean and sd of the embed_dict 
+    is not altered
+    """
+    (external_mean,external_sd) = get_mean_sd(embed_dict)
+    embedding_mean = embedding.weight.mean()
+    embedding_sd = embedding.weight.std()
     for idx in range(len(vocab)):
         token = vocab[idx]
         if token in embed_dict:
-            embedding.weight.data[idx] = embed_dict[token]
+            embedding.weight.data[idx] = (embed_dict[token] - external_mean + embedding_mean)*embedding_sd/external_sd
     return embedding
 
 
