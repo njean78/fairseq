@@ -97,11 +97,11 @@ void bleu_addngram(
 }
 
 extern "C" {
-
+__declspec(dllexport)
 void bleu_zero_init(bleu_stat* stat) {
   std::memset(stat, 0, sizeof(bleu_stat));
 }
-
+__declspec(dllexport)
 void bleu_one_init(bleu_stat* stat) {
   bleu_zero_init(stat);
   stat->count1 = 0;
@@ -113,7 +113,7 @@ void bleu_one_init(bleu_stat* stat) {
   stat->match3 = 1;
   stat->match4 = 1;
 }
-
+__declspec(dllexport)
 void bleu_add(
     bleu_stat* stat,
     size_t reflen, int* ref, size_t predlen, int* pred, int pad, int eos) {
